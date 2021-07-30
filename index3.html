@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Serverless Meetings</title>
+    <link rel="stylesheet" href="src/css/styles.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.5/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/hmac-sha256.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.11.0/minified.js"></script>
+    <script src="./src/js/amazon-chime-sdk.min.js"></script>
+    <script src="./src/js/moment.min.js"></script>
+  </head>
+  <body>
+
+    <div class="before-meeting" id="before-meeting">
+      <div class="form-left-side">
+        <div class="container-chime" id="meeting_detail_heading">
+        <h1>Welcome to Serverless Meetings!</h1>
+       </div>
+       <hr>
+       <div class="container-chime" id="meeting_detail_container">
+         <div class="meeting-title" id="meeting-title">
+             <label for="inputMeeting" class="sr-only"><b>Class Name</b></label>
+          <input type="name" id="inputMeeting" class="chime-form-control" placeholder="Class Name" required autofocus>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+        <div class="joiner-name">
+            <label for="inputName" class="sr-only"><b>Your Name</b></label>
+          <input type="email" id="inputName" class="chime-form-control" placeholder="Your Name" required>
+        </div>
+      </div>
+        <audio style="display: none;" id="meeting-audio"></audio>
+        <!-- <button type="button" id="start-button" style="display: none;"></button>
+        <button type="button" id="stop-button" style="display: none;">Stop</button> -->
+        <div class="clearfix">
+          <button type="button" id="start-button" class="startbtn"></button>
+          <button type="button" id="test"  class="test" onclick="test()">test</button>
+        </div>
+      </div>
+        <!-- Preview Code-->
+
+        <div id="flow-devices" class="flow">
+          <div class="container">
+            <form id="form-devices">
+              <div class="row mt-3">
+                <div class="col-12 col-sm-8 sound-preview">
+                  
+                  <div class="microreview">
+                  <img src="./assets/microphone.png" alt="" srcset="" id="start" style="height: 20px; width: 20px; margin-left: 10px; margin-bottom: 0%;" />
+                  </div>
+                  <div id="volume-visualizer"></div>
+                </div>
+              </div>
+              <div class="row mt-3 video-preview">
+                <div class="col-12 col-sm-8 video-btn">
+                  <img src="./assets/video-call.png" alt="" srcset="" id="videobuttonPreview" name="video-stop" style="height: 20px; width: 20px; margin-left: 10px;" />
+                  <!-- <img src="./assets/video-call.png" alt="" srcset="" id="videobuttonPreview" name="video-stop" style="height: 20px; width: 20px; margin-left: 10px;" onclick="hideVideo()" /> -->
+                </div>
+                <div class="col-sm-4 text-center d-sm-block video-preview1">
+                  <video id="video-preview" class="w-100 h-100" style="max-width:137px;max-height:82px;border-radius:8px" autoplay></video>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      
+
+          <!--            <div id="flow-devices" class="flow">
+                        <div class="containerr">
+                          <form id="form-devices">
+
+                            <div class="row mt-3">
+                                <div class="col-sm-4 text-center d-sm-block video-preview">
+                                <video id="video-preview" class="w-100 h-100"
+                                  autoplay></video>
+                              </div>
+                              <div class="col-12 col-sm-8">
+                                <img src="./assets/video-call.png" alt="" srcset=""
+                                  id="videobuttonPreview" name="video-stop"  onclick="hideVideo()" />
+                              </div>
+                            </div>
+                            <div class="row mt-3">
+                              <div class="col-12 col-sm-8 audio_buttons">
+                                <div class="microreview">
+                                  <img src="./assets/microphone.png" alt=""
+                                        srcset="" id="start"  />
+                                  </div>
+                                <div id="volume-visualizer"></div>
+
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+
+                      -->
+
+        <!--End of Preview Code-->
+
+        <!-- <p id="meeting-link"></p> -->
+        <!-- <div id="video-list">
+        </div> -->
+        </div>
+
+
+      <!------ MEETING SCREEN -------->
+
+        <div class="in-meeting" id="in-meeting">
+            
+          <header>
+            <div class="host-logo">
+              <img src="./assets/dot.svg" alt="" srcset="" />
+            <p>Live</p>
+            </div>
+
+            <nav>
+              <div class="attendee-section openbtn" onclick="openAttendee()">
+                    <img src="./assets/group.svg" alt="" srcset="" />
+
+                <div class="attendee-count" id="attendee-count">2</div>
+              </div>
+
+              <div class="chat-section openbtn"
+                id="chat-section"
+                onclick="openChat()" >
+                  <div class="chat-div1"><img src="./assets/chat.svg" alt="" srcset="" /></div>
+                <div class="chat-div2">
+                  <!-- <textarea name="send-message" id="send-message" cols="30" rows="30"></textarea> -->
+                </div>
+              </div>
+
+            </nav>
+              
+          </header>
+
+          <main>
+              
+            <div class="big-screen">
+
+            <div class="host-video" id="host-video">
+         <!--  <video src="https://video.wixstatic.com/video/11062b_5cfc174c57fd477a9d6a6d33c0b61ca5/480p/mp4/file.mp4" autoplay loop>
+           </video> -->
+            </div>
+
+            <div src="" id="screen-share" onclick="ScreenShare()">
+           <!--  <video src="https://video.wixstatic.com/video/11062b_5cfc174c57fd477a9d6a6d33c0b61ca5/480p/mp4/file.mp4" autoplay loop></video> -->
+            </div>
+
+            </div>
+
+            <div class="attendee-video" id="attendee-video">   
+     <!-- <video src="https://video.wixstatic.com/video/11062b_5cfc174c57fd477a9d6a6d33c0b61ca5/480p/mp4/file.mp4" autoplay loop></video> 
+     <video src="https://video.wixstatic.com/video/11062b_5cfc174c57fd477a9d6a6d33c0b61ca5/480p/mp4/file.mp4" autoplay loop></video>
+     <video src="https://video.wixstatic.com/video/11062b_5cfc174c57fd477a9d6a6d33c0b61ca5/480p/mp4/file.mp4" autoplay loop></video>
+     -->
+
+            </div>
+          </main>
+            
+             <!------ MEETING SCREEN Msg -------->
+
+          <div class="container-11 " >
+            <br />
+            <div id="attendeeSidePanel" class="sidepanel">
+              <a class="closebtn" onclick="closeAttendee()">×</a>
+              <!-- href="javascript:void(0)" -->
+              <div class="attendees">
+                <div class="attendee-info">
+                  <img src="./assets/i-o_Profile.jpg" alt="" srcset="" />
+                  <div class="attendee-name">sample</div>
+                </div>
+              </div>
+              <ul id="listvalue"> </ul>
+            </div>
+          </div>
+          <div class="container-11">
+            <br />
+            <div id="chatSidePanel" class="sidepanel">
+              <a class="closebtn" onclick="closeChat()">×</a>
+
+        <div class="view">
+          <br/>
+          <div >
+            <ul id="chat-messages" class="list-group">
+              <h5 id="userName"></h5>
+              </ul>
+          </div>
+          <br/>
+          <div id="chat_input_box">
+            <input id="message-input" class="chime-form-control" placeholder="Type a new message">
+            <button type="button" id="btn-send" class="btnsend">&#10148;</button>
+          </div>
+        </div>
+      </div>
+         </div>
+
+
+          <div class="footer-1">
+            <div class="meeting-info" onclick="toggleMeetingInfo()">
+                      <h3>Meeting Info </h3>
+                      <img src="./assets/uparrow.svg" alt="" srcset="">
+                  </div>
+                  <div class="container-chime">
+                      <br />
+                      <div id="meetingSidePanel" class="meetingSidePanel">
+                        <a class="meetingInfo-closebtn" onclick="toggleMeetingInfo()"></a>
+                        
+                          <!-- href="javascript:void(0)" -->
+                       
+                          <div class="meeting_date" id="meeti_date">
+                            <p id="meeting_name"></p>
+                            <p id="meeting_date_time"></p>
+                         </div>  
+                         <div class="meeting_join_info" >
+                          <p id="meetinfo"></p>
+                            <p id="meet_link"></p>   
+                          <div id="copy_join_info">
+                            <p>
+                              <img src="assets/copy.svg">
+                              Copy Joining Info
+                            </p>
+                          </div>  
+                          </div>                         
+                      </div>
+                  </div>
+              
+            <div class="call-btns">
+             <!-- <button onclick="hide_host()" id="present_btn">Show Host</button> -->
+                <img src="./assets/microphone.png" alt="" srcset="" id="mute-button" />
+                <img src="./assets/call-end.png" alt="" srcset="" id="stop-button" />
+                <!-- single button video on off -->
+                <img src="./assets/video-call.png" alt="" srcset="" id="video-button" name="video-stop"/>
+
+                <!-- seperate buttons -->
+                <!-- <img src="./video-call.png" alt="" srcset="" id="video-on-button" /> -->
+                <!-- <img src="./video-call.png" alt="" srcset="" id="video-off-button" /> -->
+                <!--<img id="record_btn" src="./assets/dot.png" alt="" srcset="" onclick="recordbtns()"> -->
+                <button id="record_btn">Record</button>
+                <button id="record_download">Download</button>
+                
+                <!-- <p>
+                  Echo: <input type="checkbox" id="echoCancellation" />
+                </p> -->
+                <button id="present-screen">
+                    <img id="present_img" src="./assets/square.svg" alt="" srcset="">
+               <p>Present Screen </p> 
+                </button>
+                <!-- <button id="present-screen-off">screen-off</button> -->
+
+            </div>
+
+          
+      </div>
+    </div>
+
+          <script>
+
+
+// meeting info 
+
+
+let joininfo= "Joining Info";
+let meetLink="https://meet.google.com/";
+
+
+function meetingDateInfo(){
+let meetName= "LCNC ";
+
+document.getElementById("meeting_name").innerHTML= meetName;
+document.getElementById("meeting_date_time").innerHTML= Date();
+}
+
+
+function meetingInfoLinks(){
+document.getElementById("meetinfo").innerHTML= joininfo;
+document.getElementById("meet_link").innerHTML= meetLink;
+}
+// copy text
+
+
+function copyText(htmlElement)
+{
+if(!htmlElement){
+return;
+}
+let elementText = htmlElement.innerText;
+
+let inputElement = document.createElement('input');
+inputElement.setAttribute('value', elementText);
+document.body.appendChild(inputElement);
+inputElement.select();
+document.execCommand('copy');
+inputElement.parentNode.removeChild(inputElement);
+
+}
+
+document.querySelector('#copy_join_info').onclick = function(){
+copyText(document.querySelector('#meet_link'));
+}
+
+
+
+
+            function openAttendee() {
+              closeChat();
+               var side_container= document.getElementById("attendeeSidePanel");
+            if(side_container.style.display === "none"){
+              side_container.style.display="block";
+              }
+              else{
+                side_container.style.display="none";
+              }
+            }
+
+            function hideVideo(){
+              var video = document.getElementById('video');
+              video.pause();
+              video.srcObject  = "";
+            }
+
+
+
+
+            function closeAttendee() {
+              document.getElementById("attendeeSidePanel").style.display="none";
+
+            }
+
+            function openChat() {
+              closeAttendee();
+
+                      var chatside_container= document.getElementById("chatSidePanel");
+
+              if(chatside_container.style.display === "none"){
+              chatside_container.style.display="block";
+              }
+              else{
+                chatside_container.style.display="none";
+              }
+
+            }
+
+
+            function closeChat() {
+              document.getElementById("chatSidePanel").style.display="none";
+
+            }
+            function toggleMeetingInfo() {
+              var x = document.getElementById("meetingSidePanel");
+              if (x.style.display === "none") {
+                x.style.display = "block";
+                meetingDateInfo();
+                meetingInfoLinks();
+              } 
+              else {
+                x.style.display = "none";
+                }
+             
+            } 
+            //present    
+            function hide_host() {
+              var parentHost= document.getElementById("host-video");
+              if(parentHost.firstElementChild.style.display === "none"){
+              parentHost.firstElementChild.style.display="block";
+              }
+              else{
+                parentHost.firstElementChild.style.display="none";
+              }
+            } 
+
+            function test() {
+	document.getElementById("before-meeting").style.display = "none";
+	document.getElementById("in-meeting").style.display = "block";
+}
+
+function recordbtns() {
+              
+              var record_panel= document.getElementById("record_panel");
+           if(record_panel.style.display === "none"){
+             record_panel.style.display="block";
+             }
+             else{
+               record_panel.style.display="none";
+             }
+           }
+
+
+
+          </script>
+
+
+        <script src="./src/js/app3.js"></script>
+        </body>
+
+
+</html>
